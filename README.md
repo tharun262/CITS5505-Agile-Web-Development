@@ -14,7 +14,7 @@ The main goals of this project include:
 
 - Creation of a note-taking app
 - Utilizing basic web development principles such as client-server architecture.- Utilization of a database for non-changing data storing
-- Allowing users to communicate via shared content
+- Allowing users to communicate via shared content.
 - Using Agile methodology throughout the process 
 
 ## 👥 Users to Target
