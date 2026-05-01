@@ -1,0 +1,72 @@
+body {
+  padding-top: 88px;
+  font-family: "Manrope", sans-serif;
+  background: radial-gradient(
+      circle at top left,
+      rgba(252, 232, 178, 0.5),
+      transparent 26%
+    ),
+    #f8f9fa;
+}
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+.brand-mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #ffd54f;
+  color: #6b4f00;
+}
+.search-pill {
+  max-width: 720px;
+}
+.search-pill .form-control,
+.search-pill .input-group-text {
+  background: #f1f3f4;
+  border: 0;
+}
+.sidebar-desktop {
+  width: 260px;
+}
+.sidebar-sticky {
+  position: sticky;
+  top: 104px;
+}
+.sidebar-link {
+  border-radius: 999px;
+  color: #3c4043;
+  font-weight: 600;
+}
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.7);
+  color: #202124;
+}
+.sidebar-link.active,
+.sidebar-link.active:hover {
+  background: #fce8b2;
+  color: #5d4037;
+}
+.note-create {
+  max-width: 600px;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.note-card {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+.badge-soft {
+  background: rgba(255, 255, 255, 0.75);
+  color: #6b4f00;
+}
+.archived-card {
+  opacity: 0.85;
+  background-color: #f8f9fa !important;
+}
