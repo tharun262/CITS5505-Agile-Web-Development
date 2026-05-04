@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from extensions import db, migrate
 from models import User
 from routes.auth import auth_bp
@@ -8,6 +9,7 @@ from routes.calendar import calendar_bp
 from routes.tasks import tasks_bp
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SECRET_KEY"] = "secret-key"

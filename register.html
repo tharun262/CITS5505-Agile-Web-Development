@@ -14,30 +14,78 @@
       <h2 class="fw-bold mb-3">Register</h2>
 
       <input id="username" class="form-control mb-3" placeholder="Username">
-      <input id="email" class="form-control mb-3" placeholder="Email">
-      <input id="password" class="form-control mb-3" type="password" placeholder="Password">
+      <input id="email" class="form-control mb-3" type="email" placeholder="Email address">
+      <input id="password" class="form-control mb-2" type="password" placeholder="Password">
+
+      <p class="small text-muted mb-3">
+        Password must include at least 8 characters, one uppercase letter, one lowercase letter,
+        one number, and one special character such as @.
+      </p>
 
       <button class="btn btn-warning w-100 fw-bold" onclick="register()">Register</button>
 
       <p class="mt-3">Already have an account? <a href="login.html">Login here</a></p>
-      <pre id="result" class="small text-secondary"></pre>
+      <p id="result" class="small mt-2"></p>
     </div>
   </main>
 
   <script>
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function isStrongPassword(password) {
+      return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password);
+    }
+
+    function showMessage(message, type) {
+      const result = document.getElementById("result");
+      result.innerText = message;
+      result.className = type === "success" ? "small mt-2 text-success" : "small mt-2 text-danger";
+    }
+
     function register() {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !email || !password) {
+        showMessage("Please fill in all fields.", "error");
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showMessage("Please enter a valid email address, for example: name@example.com", "error");
+        return;
+      }
+
+      if (!isStrongPassword(password)) {
+        showMessage("Password must include at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character such as @.", "error");
+        return;
+      }
+
       fetch("http://127.0.0.1:5000/auth/signup", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          username: document.getElementById("username").value,
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value
+          username: username,
+          email: email,
+          password: password
         })
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+        if (data.message === "User created successfully") {
+          showMessage("Registration successful! Redirecting to login...", "success");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1000);
+        } else {
+          showMessage(data.error || "Registration failed.", "error");
+        }
+      })
+      .catch(() => {
+        showMessage("Server error. Please check that the backend is running.", "error");
       });
     }
   </script>
