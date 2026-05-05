@@ -4,6 +4,9 @@ from extensions import db, migrate
 from models import User
 from routes.auth import auth_bp
 from routes.profiles import profiles_bp
+from routes.archive import archive_bp
+from routes.posts import posts_bp
+from routes.feed import feed_bp
 from routes.comments import comments_bp
 from routes.calendar import calendar_bp
 from routes.tasks import tasks_bp
@@ -20,6 +23,9 @@ migrate.init_app(app, db)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(profiles_bp)
+app.register_blueprint(archive_bp)
+app.register_blueprint(posts_bp)
+app.register_blueprint(feed_bp)
 app.register_blueprint(comments_bp)
 app.register_blueprint(calendar_bp)
 app.register_blueprint(tasks_bp)

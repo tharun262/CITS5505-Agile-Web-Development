@@ -7,24 +7,20 @@ class User(db.Model):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
-
     username = db.Column(db.String(80), unique=True, nullable=False)
-
     email = db.Column(db.String(120), unique=True, nullable=False)
-
     password_hash = db.Column(db.String(200), nullable=False)
-
     bio = db.Column(db.String(200), nullable=True)
 
-    # 🔐 set password (hash it)
+    tasks = db.relationship("Task", backref="user", lazy=True, cascade="all, delete-orphan")
+    posts = db.relationship("Post", backref="author", lazy=True, cascade="all, delete-orphan")
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    # 🔐 check password
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    # (optional but useful later)
     def to_dict(self):
         return {
             "id": self.id,
@@ -62,43 +58,27 @@ class CalendarCredential(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
-class Post(db.Model):
-    __tablename__ = "post"
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    body = db.Column(db.String(2000), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    author = db.relationship("User")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "title": self.title,
-            "body": self.body,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-        }
-
-
 class Task(db.Model):
     __tablename__ = "task"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
     title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.String(2000), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+
     due_at = db.Column(db.DateTime, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
     is_archived = db.Column(db.Boolean, default=False, nullable=False)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    completed_at = db.Column(db.DateTime, nullable=True)
 
-    creator = db.relationship("User")
+    shared_post_id = db.Column(db.Integer, nullable=True)
+    google_event_id = db.Column(db.String(255), nullable=True)
+
+    posts = db.relationship("Post", backref="task", lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -111,4 +91,32 @@ class Task(db.Model):
             "is_archived": self.is_archived,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "shared_post_id": self.shared_post_id,
+            "google_event_id": self.google_event_id
+        }
+
+
+class Post(db.Model):
+    __tablename__ = "post"
+
+    id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    title_snapshot = db.Column(db.String(200), nullable=False)
+    description_snapshot = db.Column(db.Text, nullable=True)
+    caption = db.Column(db.String(280), nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "task_id": self.task_id,
+            "user_id": self.user_id,
+            "title_snapshot": self.title_snapshot,
+            "description_snapshot": self.description_snapshot,
+            "caption": self.caption,
+            "created_at": self.created_at.isoformat() if self.created_at else None
         }
