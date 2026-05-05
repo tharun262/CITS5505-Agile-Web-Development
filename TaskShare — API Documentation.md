@@ -165,6 +165,17 @@ Validation rules:
 - `email`: valid email syntax, must be unique
 - `password`: minimum 8 characters
 - `password_confirm`: must equal `password`
+  
+Client-side validation is also applied on the frontend:
+- Email must follow a valid format (e.g. name@example.com)
+- Password must contain at least:
+  - 8 characters
+  - one uppercase letter
+  - one lowercase letter
+  - one number
+  - one special character (e.g. @)
+
+These checks improve user experience, but the backend still enforces validation.
 
 Responses:
 
@@ -182,6 +193,10 @@ Responses:
 - **409 Conflict** — `USERNAME_TAKEN` or `EMAIL_TAKEN`
 
 - **422 Unprocessable Entity** — `VALIDATION_ERROR`
+  
+**Frontend behaviour**:
+- On successful registration, the user is redirected to the login page
+- Validation errors are shown as clear messages instead of raw JSON
 
 #### POST `/auth/login`
 
@@ -189,17 +204,21 @@ Request:
 
 ```json
 {
-  "identifier": "alice",
+  "username": "alice",
   "password": "S3cure!Pass"
 }
 ```
 
-`identifier` accepts either username or email so users do not have to remember which they registered with.
+`username` accepts either username or email so users do not have to remember which they registered with.
 
 Responses:
 
 - **200 OK** — same user shape as signup, sets session cookie
 - **401 Unauthenticated** — `INVALID_CREDENTIALS` (return a deliberately generic message; do **not** disclose whether it was the username or password that was wrong)
+  
+**Frontend behaviour**:
+- On successful login, the user is redirected to the main page (index.html)
+- On failure, a user-friendly error message is displayed instead of raw JSON
 
 #### POST `/auth/logout`
 

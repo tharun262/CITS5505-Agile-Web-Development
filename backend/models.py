@@ -30,6 +30,34 @@ class User(db.Model):
         }
 
 
+class Comment(db.Model):
+    __tablename__ = "comment"
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    body = db.Column(db.String(1000), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    author = db.relationship("User")
+    post = db.relationship(
+        "Post",
+        backref=db.backref("comments", lazy=True, cascade="all, delete-orphan"),
+    )
+
+
+class CalendarCredential(db.Model):
+    __tablename__ = "calendar_credential"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), unique=True, nullable=False)
+    access_token = db.Column(db.Text, nullable=False)
+    refresh_token = db.Column(db.Text, nullable=True)
+    token_expiry = db.Column(db.DateTime, nullable=True)
+    scope = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 class Task(db.Model):
     __tablename__ = "task"
 
@@ -39,10 +67,10 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
 
+    due_at = db.Column(db.DateTime, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
     is_archived = db.Column(db.Boolean, default=False, nullable=False)
 
-    due_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     completed_at = db.Column(db.DateTime, nullable=True)
@@ -58,9 +86,9 @@ class Task(db.Model):
             "user_id": self.user_id,
             "title": self.title,
             "description": self.description,
+            "due_at": self.due_at.isoformat() if self.due_at else None,
             "is_completed": self.is_completed,
             "is_archived": self.is_archived,
-            "due_at": self.due_at.isoformat() if self.due_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
