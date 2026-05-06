@@ -39,7 +39,41 @@ def serialize_task(task):
         "is_archived": task.is_archived,
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
+        "labels": [l for l in (getattr(task, "labels", "") or "").split(",") if l],
     }
+
+
+def normalize_labels(value):
+    """Accept either a list or a comma-separated string. Return a comma-separated
+    string of lowercase, trimmed, deduped, alphanumeric-ish labels (max 5, max 20 chars each).
+    Returns "" for falsy / empty input.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        items = value.split(",")
+    elif isinstance(value, list):
+        items = value
+    else:
+        return ""
+
+    seen = []
+    for raw in items:
+        if not isinstance(raw, str):
+            continue
+        s = raw.strip().lower()
+        if not s:
+            continue
+        # keep alphanumerics, dash, underscore; drop other chars
+        s = "".join(c for c in s if c.isalnum() or c in "-_")
+        if not s:
+            continue
+        s = s[:20]
+        if s not in seen:
+            seen.append(s)
+        if len(seen) >= 5:
+            break
+    return ",".join(seen)
 
 
 # GET /tasks - List active tasks (filter / search / paginate)
@@ -130,6 +164,7 @@ def create_task():
         title=title.strip(),
         description=description if isinstance(description, str) else None,
         due_at=parsed_due_at,
+        labels=normalize_labels(body.get("labels")),
     )
 
     db.session.add(task)
@@ -196,6 +231,10 @@ def update_task(task_id):
                     return jsonify({"error": "due_at must be an ISO 8601 datetime string"}), 400
             except (ValueError, TypeError):
                 return jsonify({"error": "Invalid due_at format. Use ISO 8601 format"}), 400
+
+    # Update labels if provided (accepts list or comma-separated string)
+    if "labels" in body:
+        task.labels = normalize_labels(body.get("labels"))
 
     task.updated_at = datetime.utcnow()
     db.session.commit()
