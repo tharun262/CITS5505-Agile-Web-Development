@@ -6,7 +6,13 @@ let currentUser = null; // {id, username, ...} — set on load
 document.addEventListener("DOMContentLoaded", async () => {
   await loadCurrentUser();
   await loadFeed();
+  setupLogout();
 });
+
+function setupLogout() {
+  // The logout functionality for all pages with profile button
+  // Just need to ensure the button on feed.html has the onclick event
+}
 
 async function loadCurrentUser() {
   try {

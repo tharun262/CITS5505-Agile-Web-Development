@@ -32,7 +32,7 @@ async function loadCompletedTasks() {
     if (!res.ok) throw new Error("Could not load tasks");
 
     const data = await res.json();
-    completedTasks = (data.items || []).filter(task => task.iscompleted && !task.isarchived);
+    completedTasks = (data.items || []).filter(task => task.is_completed && !task.is_archived);
 
     if (!completedTasks.length) {
       preview.textContent = "No completed tasks available to share yet.";

@@ -1,0 +1,9 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    ".vscode/**",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "backend/instance/**",
+    "backend/migrations/versions/__pycache__/**"
+  ]
+}
