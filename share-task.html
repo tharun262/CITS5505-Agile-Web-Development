@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Share Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="auth-guard.js" defer></script>
+  <script src="share-task.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-brand" href="index.html">
+        <span class="brand-mark brand-mark-flex">KL</span>
+        <span>KeepLite</span>
+      </a>
+
+      <div class="site-nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="feed.html">Feed</a>
+        <a href="archive.html">Archive</a>
+        <a href="profile.html">Profile</a>
+        <button id="logout-btn" type="button">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-wrap page-wrap-narrow">
+    <section class="page-card page-hero">
+      <span class="badge-soft badge-pill">Share achievement</span>
+      <h1>Share a completed task</h1>
+      <p>Pick a completed task and post it to the public feed with an optional caption.</p>
+    </section>
+
+    <section class="page-card">
+      <form id="share-form" class="stack-form">
+        <div>
+          <label for="task-select">Completed task</label>
+          <select id="task-select" required>
+            <option value="">Select a completed task</option>
+          </select>
+        </div>
+
+        <div id="task-preview" class="preview-box">
+          Choose a completed task to preview it here.
+        </div>
+
+        <div>
+          <label for="caption">Caption</label>
+          <textarea
+            id="caption"
+            rows="4"
+            maxlength="280"
+            placeholder="Write something about this achievement..."
+          ></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn-primary">Share to feed</button>
+          <a href="index.html" class="btn-secondary">Back to dashboard</a>
+        </div>
+
+        <p id="share-message" class="muted-text"></p>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

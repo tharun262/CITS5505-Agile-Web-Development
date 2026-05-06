@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KeepLite - User Profile</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="auth-guard.js" defer></script>
+  <script src="user.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-brand" href="index.html">
+        <span class="brand-mark brand-mark-flex">KL</span>
+        <span>KeepLite</span>
+      </a>
+
+      <div class="site-nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="feed.html">Feed</a>
+        <a href="archive.html">Archive</a>
+        <a href="profile.html">Profile</a>
+        <button id="logout-btn" type="button">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-wrap">
+    <section class="page-card page-hero">
+      <span class="badge-soft badge-pill">Community profile</span>
+      <h1 id="user-name">User profile</h1>
+      <p id="user-summary">Browse another user's public posts and recent activity.</p>
+    </section>
+
+    <section class="page-card">
+      <div class="section-title">
+        <h2>Public posts</h2>
+        <p>Posts shared by this user in the KeepLite feed.</p>
+      </div>
+      <div id="user-posts" class="post-list">
+        <p class="muted-text">Loading public posts...</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
