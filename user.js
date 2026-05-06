@@ -30,7 +30,7 @@ async function loadUserProfile() {
 
   try {
     const [profileRes, feedRes] = await Promise.all([
-      fetch(`${API}/api/v1/profiles/${encodeURIComponent(username)}`, {
+      fetch(`${API}/profiles/${encodeURIComponent(username)}`, {
         credentials: "include"
       }),
       fetch(`${API}/api/v1/feed?author=${encodeURIComponent(username)}`, {
@@ -41,12 +41,12 @@ async function loadUserProfile() {
     if (!profileRes.ok) throw new Error("Could not load user profile");
     if (!feedRes.ok) throw new Error("Could not load user posts");
 
-    const profile = await profileRes.json();
+    const profileData = await profileRes.json();
+    const profile = profileData.profile;
     const feedData = await feedRes.json();
     const posts = feedData.items || [];
 
-    document.getElementById("user-name").textContent =
-      profile.displayname || profile.username || username;
+    document.getElementById("user-name").textContent = profile.username || username;
     document.getElementById("user-summary").textContent =
       profile.bio || `Viewing public posts shared by ${profile.username || username}.`;
 
@@ -57,9 +57,9 @@ async function loadUserProfile() {
 
     container.innerHTML = posts.map(post => `
       <article class="list-card">
-        <h3>${escapeHtml(post.title_snapshot || post.titlesnapshot || "Shared task")}</h3>
+        <h3>${escapeHtml(post.title_snapshot || "Shared task")}</h3>
         <p>${escapeHtml(post.caption || "No caption provided.")}</p>
-        <small>${escapeHtml(formatDate(post.created_at || post.createdat))}</small>
+        <small>${escapeHtml(formatDate(post.created_at))}</small>
       </article>
     `).join("");
   } catch (err) {

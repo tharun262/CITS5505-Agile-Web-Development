@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
   const profileName = document.getElementById("profile-name");
   const profileBio = document.getElementById("profile-bio");
   const completedCount = document.getElementById("completed-count");
@@ -9,74 +8,76 @@ document.addEventListener("DOMContentLoaded", async () => {
   const logoutBtn = document.getElementById("logout-btn");
 
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    logoutBtn.addEventListener("click", async () => {
+      await fetch("http://127.0.0.1:5000/auth/logout", {
+        method: "POST",
+        credentials: "include"
+      });
       window.location.href = "login.html";
     });
   }
 
-  if (!token) {
-    window.location.href = "login.html";
-    return;
-  }
-
   try {
-    const [profileRes, postsRes, tasksRes, archiveRes] = await Promise.all([
-      fetch("/profiles/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      fetch("/posts/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      fetch("/tasks", {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      fetch("/archive", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-    ]);
-
+    // Get current user profile
+    const profileRes = await fetch("http://127.0.0.1:5000/auth/me", {
+      credentials: "include"
+    });
     if (!profileRes.ok) throw new Error("Failed to load profile");
+    const profileData = await profileRes.json();
+    const user = profileData.user;
 
-    const profile = await profileRes.json();
-    const posts = postsRes.ok ? await postsRes.json() : [];
-    const tasks = tasksRes.ok ? await tasksRes.json() : [];
-    const archived = archiveRes.ok ? await archiveRes.json() : [];
+    // Get user's tasks
+    const tasksRes = await fetch("http://127.0.0.1:5000/api/v1/tasks?include_archived=true", {
+      credentials: "include"
+    });
+    const tasksData = tasksRes.ok ? await tasksRes.json() : { items: [] };
+    const tasks = tasksData.items || [];
 
-    profileName.textContent = profile.username || "My Profile";
-    profileBio.textContent = profile.bio || "Your progress, shared posts, and account summary appear here.";
+    // Get user's posts
+    const postsRes = await fetch("http://127.0.0.1:5000/api/v1/feed?author=" + encodeURIComponent(user.username), {
+      credentials: "include"
+    });
+    const postsData = postsRes.ok ? await postsRes.json() : { items: [] };
+    const posts = postsData.items || [];
 
-    completedCount.textContent = Array.isArray(tasks)
-      ? tasks.filter(task => task.completed || task.is_completed).length
-      : 0;
+    profileName.textContent = user.username || "My Profile";
+    profileBio.textContent = user.bio || "Your progress, shared posts, and account summary appear here.";
 
-    archivedCount.textContent = Array.isArray(archived) ? archived.length : 0;
-    postsCount.textContent = Array.isArray(posts) ? posts.length : 0;
+    completedCount.textContent = tasks.filter(task => task.is_completed).length;
+    archivedCount.textContent = tasks.filter(task => task.is_archived).length;
+    postsCount.textContent = posts.length;
 
-    if (!Array.isArray(posts) || posts.length === 0) {
+    if (!posts.length) {
       profilePosts.innerHTML = `<p class="muted-text">You have not shared any posts yet.</p>`;
       return;
     }
 
     profilePosts.innerHTML = posts.map(post => {
-      const title = post.task_title || post.title || "Shared task";
+      const title = post.title_snapshot || "Shared task";
       const caption = post.caption || "No caption added.";
-      const createdAt = post.created_at
-        ? new Date(post.created_at).toLocaleString()
-        : "Recently shared";
+      const createdAt = post.created_at ? new Date(post.created_at).toLocaleString() : "Recently shared";
 
       return `
         <article class="profile-post-card">
-          <h3>${title}</h3>
-          <p>${caption}</p>
-          <small>${createdAt}</small>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(caption)}</p>
+          <small>${escapeHtml(createdAt)}</small>
         </article>
       `;
     }).join("");
   } catch (error) {
     profileName.textContent = "Profile unavailable";
     profileBio.textContent = "There was a problem loading your profile.";
-    profilePosts.innerHTML = `<p class="muted-text">Unable to load profile data right now.</p>`;
+    profilePosts.innerHTML = `<p class="muted-text">Unable to load profile data right now. Error: ${error.message}</p>`;
   }
 });
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return "";
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
