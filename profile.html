@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow - My Profile</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="auth-guard.js" defer></script>
+  <script src="profile.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-brand" href="index.html">
+        <span class="brand-mark brand-mark-flex">T</span>
+        <span>TaskFlow</span>
+      </a>
+
+      <div class="site-nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="feed.html">Feed</a>
+        <a href="archive.html">Archive</a>
+        <a href="profile.html">Profile</a>
+        <button id="logout-btn" type="button">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-wrap">
+    <section class="page-card page-hero">
+      <span class="badge-soft badge-pill">My profile</span>
+      <h1 id="profile-name">Loading profile...</h1>
+      <p id="profile-bio">Your progress, shared posts, and account summary appear here.</p>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-box">
+        <p>Completed tasks</p>
+        <h2 id="completed-count">0</h2>
+      </article>
+
+      <article class="stat-box">
+        <p>Archived tasks</p>
+        <h2 id="archived-count">0</h2>
+      </article>
+
+      <article class="stat-box">
+        <p>Shared posts</p>
+        <h2 id="posts-count">0</h2>
+      </article>
+    </section>
+
+    <section class="page-card">
+      <div class="section-title">
+        <h2>My shared posts</h2>
+        <p>Your public achievements and recent activity.</p>
+      </div>
+      <div id="profile-posts" class="post-list">
+        <p class="muted-text">Loading posts...</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
