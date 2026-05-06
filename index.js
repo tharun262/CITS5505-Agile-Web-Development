@@ -20,8 +20,8 @@ async function fetchTasks() {
     }
 
     const data = await response.json();
-    // Assuming API returns { data: [...] }
-    const tasks = data.data || [];
+    // API returns { items: [...], page, page_size, total }
+    const tasks = data.items || [];
 
     renderTasks(tasks);
   } catch (err) {
@@ -48,29 +48,58 @@ function renderTasks(tasks) {
     const col = document.createElement("div");
     col.className = "col-12 col-md-6 col-xl-3";
 
-    // Task data based on models.py
     const title = escapeHtml(task.title || "Untitled");
     const description = escapeHtml(task.description || "");
-    const labelHTML = task.labels
-      ? `<span class="badge rounded-pill badge-soft mt-2">${escapeHtml(task.labels)}</span>`
-      : "";
-    const color = task.color ? task.color : "#fff";
     const isCompleted = task.is_completed
-      ? '<i class="bi bi-check-circle-fill text-success mb-2 d-block"></i> '
+      ? '<i class="bi bi-check-circle-fill text-success mb-2 d-block"></i>'
+      : "";
+
+    // Show Share button only on completed-but-not-yet-shared tasks
+    const canShare = task.is_completed && !task.shared_post_id;
+    const alreadyShared = !!task.shared_post_id;
+    const shareButton = canShare
+      ? `<button class="btn btn-sm btn-warning mt-2" onclick="shareTask(${task.id})">
+           <i class="bi bi-share-fill me-1"></i>Share
+         </button>`
+      : alreadyShared
+      ? `<span class="badge rounded-pill bg-success-subtle text-success-emphasis mt-2">
+           <i class="bi bi-check2-circle me-1"></i>Shared
+         </span>`
       : "";
 
     col.innerHTML = `
-            <div class="card note-card h-100" style="background-color: ${color}">
-                <div class="card-body">
-                    ${isCompleted}
-                    <h2 class="h6 fw-bold mb-3">${title}</h2>
-                    <p class="text-secondary mb-3">${description}</p>
-                    ${labelHTML}
-                </div>
-            </div>
-        `;
+      <div class="card note-card h-100 bg-white">
+        <div class="card-body">
+          ${isCompleted}
+          <h2 class="h6 fw-bold mb-3">${title}</h2>
+          <p class="text-secondary mb-3">${description}</p>
+          ${shareButton}
+        </div>
+      </div>
+    `;
     container.appendChild(col);
   });
+}
+
+async function shareTask(taskId) {
+  const caption = prompt("Add a caption for your post (optional):") || "";
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/v1/tasks/${taskId}/share`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ caption: caption.trim() || null }),
+    });
+    const data = await res.json();
+    if (res.status === 201) {
+      alert("Shared! Visit Feed to see it.");
+      fetchTasks();
+    } else {
+      alert(data.error?.message || "Failed to share");
+    }
+  } catch (err) {
+    alert("Network error: " + err.message);
+  }
 }
 
 function escapeHtml(unsafe) {
