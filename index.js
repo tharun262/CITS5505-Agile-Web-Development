@@ -33,15 +33,24 @@ function setupCreateNote() {
     createCard.addEventListener("click", () => {
       const title = prompt("Note title:");
       if (title === null) return;
-      
+
       const description = prompt("Note description (optional):");
-      
-      createTask(title.trim() || "Untitled", description?.trim() || "");
+      if (description === null) return;
+
+      const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
+      if (labelsInput === null) return;
+
+      const labels = labelsInput
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      createTask(title.trim() || "Untitled", description?.trim() || "", labels);
     });
   }
 }
 
-async function createTask(title, description) {
+async function createTask(title, description, labels) {
   if (!title) {
     alert("Title is required");
     return;
@@ -52,7 +61,11 @@ async function createTask(title, description) {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description: description || null }),
+      body: JSON.stringify({
+        title,
+        description: description || null,
+        labels: labels || [],
+      }),
     });
 
     if (res.status === 201) {
@@ -124,6 +137,13 @@ function renderTasks(tasks) {
       ? '<i class="bi bi-check-circle-fill text-success mb-2 d-block"></i>'
       : "";
 
+    const labelBadges = (task.labels || [])
+      .map(
+        (l) =>
+          `<a href="labels.html?label=${encodeURIComponent(l)}" class="badge rounded-pill text-bg-primary me-1 text-decoration-none">${escapeHtml(l)}</a>`
+      )
+      .join("");
+
     // Show Share button only on completed-but-not-yet-shared tasks
     const canShare = task.is_completed && !task.shared_post_id;
     const alreadyShared = !!task.shared_post_id;
@@ -151,6 +171,7 @@ function renderTasks(tasks) {
           ${isCompleted}
           <h2 class="h6 fw-bold mb-3">${title}</h2>
           <p class="text-secondary mb-3">${description}</p>
+          ${labelBadges ? `<div class="mb-2">${labelBadges}</div>` : ""}
           ${shareButton}
           ${actionButtons}
         </div>

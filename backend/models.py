@@ -78,6 +78,10 @@ class Task(db.Model):
     shared_post_id = db.Column(db.Integer, nullable=True)
     google_event_id = db.Column(db.String(255), nullable=True)
 
+    # Comma-separated labels, e.g. "java,study,urgent"
+    # Stored denormalized for simplicity; parsed to a list in to_dict.
+    labels = db.Column(db.String(255), nullable=True)
+
     posts = db.relationship("Post", backref="task", lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -93,7 +97,8 @@ class Task(db.Model):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "shared_post_id": self.shared_post_id,
-            "google_event_id": self.google_event_id
+            "google_event_id": self.google_event_id,
+            "labels": [l for l in (self.labels or "").split(",") if l]
         }
 
 
