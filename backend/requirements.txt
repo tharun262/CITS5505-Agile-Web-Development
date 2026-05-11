@@ -5,3 +5,4 @@ flask-migrate
 werkzeug
 python-dotenv
 pytest
+selenium
