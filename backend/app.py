@@ -10,12 +10,16 @@ from routes.feed import feed_bp
 from routes.comments import comments_bp
 from routes.calendar import calendar_bp
 from routes.tasks import tasks_bp
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
-app.config["SECRET_KEY"] = "secret-key"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///app.db")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fallback-secret")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
