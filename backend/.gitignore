@@ -4,3 +4,4 @@ __pycache__/
 instance/
 app.db
 cookies.txt
+.env

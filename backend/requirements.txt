@@ -1,0 +1,9 @@
+flask
+flask-cors
+flask-sqlalchemy
+flask-migrate
+werkzeug
+python-dotenv
+pytest
+selenium
+requests
