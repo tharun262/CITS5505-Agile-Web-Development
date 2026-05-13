@@ -97,6 +97,12 @@ textarea {
   border: 0;
 }
 
+.glass-nav {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .sidebar-desktop {
   width: 260px;
 }
@@ -306,23 +312,24 @@ textarea {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary {
+.kl-btn-primary,
+.kl-btn-secondary {
   display: inline-block;
   border: 0;
   border-radius: 999px;
   padding: 0.85rem 1.2rem;
   font-weight: 700;
   cursor: pointer;
+  text-align: center;
 }
 
-.btn-primary {
+.kl-btn-primary {
   background: #ffd54f;
   color: #6b4f00;
   box-shadow: 0 10px 24px rgba(255, 213, 79, 0.28);
 }
 
-.btn-secondary {
+.kl-btn-secondary {
   background: #fff;
   color: #3c4043;
   border: 1px solid #e5e7eb;
@@ -542,6 +549,331 @@ textarea {
   padding: 2rem;
 }
 
+.user-info-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #fffdf7;
+  border: 1px solid #f2e2b8;
+  border-radius: 16px;
+}
+
+.user-info-details {
+  flex: 1;
+}
+
+.user-bio,
+.user-location,
+.user-joined {
+  margin: 0.5rem 0;
+  color: #5f6368;
+  line-height: 1.6;
+}
+
+.user-bio {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #5d4037;
+}
+
+.user-location,
+.user-joined {
+  font-size: 0.95rem;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-friend,
+.btn-message {
+  display: inline-block;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-friend-add {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-friend-add:hover {
+  background: #45a049;
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+}
+
+.btn-friend-remove {
+  background: #f44336;
+  color: white;
+}
+
+.btn-friend-remove:hover {
+  background: #da190b;
+  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.3);
+}
+
+.btn-message {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-message:hover {
+  background: #0b7dda;
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.3);
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.friend-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.friend-card:hover {
+  border-color: #ffd54f;
+  box-shadow: 0 8px 20px rgba(255, 213, 79, 0.2);
+  transform: translateY(-4px);
+}
+
+.friend-avatar {
+  width: 60px;
+  height: 60px;
+  background: #ffd54f;
+  color: #6b4f00;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 auto 0.75rem;
+}
+
+.friend-card h3 {
+  margin: 0.5rem 0;
+  color: #5d4037;
+  font-size: 1.1rem;
+}
+
+.friend-bio {
+  margin: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  min-height: 2.7em;
+}
+
+.btn-friend-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: #ffd54f;
+  color: #6b4f00;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-friend-link:hover {
+  background: #ffc94c;
+  box-shadow: 0 4px 12px rgba(255, 213, 79, 0.3);
+}
+
+.profile-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #fffdf7;
+  border: 1px solid #f2e2b8;
+  border-radius: 16px;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-location,
+.profile-joined {
+  margin: 0.5rem 0;
+  color: #5f6368;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.profile-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-profile {
+  display: inline-block;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.btn-profile-edit {
+  background: #ffd54f;
+  color: #6b4f00;
+}
+
+.btn-profile-edit:hover {
+  background: #ffc94c;
+  box-shadow: 0 6px 16px rgba(255, 213, 79, 0.3);
+}
+
+.btn-profile-friends {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-profile-friends:hover {
+  background: #45a049;
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+}
+
+.btn-profile-messages {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-profile-messages:hover {
+  background: #0b7dda;
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.3);
+}
+
+/* Safe Bootstrap component styling */
+.card {
+  border-radius: 20px;
+}
+
+.offcanvas,
+.offcanvas-header,
+.offcanvas-body {
+  background: #fffdf9;
+}
+
+/* Safe Bootstrap modal styling */
+.modal-content {
+  border: 0;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: #f2e2b8;
+}
+
+.modal-header {
+  background: #fffdf7;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+}
+
+.modal-footer {
+  background: #fff;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+.modal-title {
+  color: #5d4037;
+  font-weight: 800;
+}
+
+.modal-body {
+  background: #fff;
+}
+
+.modal-backdrop {
+  --bs-backdrop-opacity: 0.5;
+}
+
+#conversationMessages .card {
+  border: 0;
+  border-radius: 16px;
+}
+
+#conversationMessages .bg-light {
+  background-color: #fff8e1 !important;
+}
+
+#newMessageModal .form-control,
+#conversationModal .form-control {
+  border-radius: 14px;
+  border: 1px solid #e6dcc8;
+  padding: 0.9rem 1rem;
+}
+
+#newMessageModal .form-control:focus,
+#conversationModal .form-control:focus {
+  border-color: #ffd54f;
+  box-shadow: 0 0 0 0.2rem rgba(255, 213, 79, 0.2);
+}
+
+#newMessageModal .btn-primary {
+  background: #ffd54f;
+  color: #6b4f00;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(255, 213, 79, 0.28);
+}
+
+#newMessageModal .btn-primary:hover {
+  background: #ffc94c;
+  color: #6b4f00;
+}
+
+#newMessageModal .btn-secondary {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+#conversationModal .btn-warning {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+#messagesList .card {
+  border: 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+#messagesList .btn-group .btn {
+  border-radius: 999px;
+}
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
@@ -575,6 +907,37 @@ textarea {
   .sidebar-desktop {
     width: 100%;
   }
+
+  .user-info-card {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .user-actions {
+    flex-direction: column;
+  }
+
+  .user-actions button {
+    width: 100%;
+  }
+
+  .friends-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .profile-header-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .profile-buttons {
+    flex-direction: column;
+  }
+
+  .profile-buttons button,
+  .profile-buttons a {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -596,4 +959,3 @@ textarea {
     padding-right: 1rem;
   }
 }
-
