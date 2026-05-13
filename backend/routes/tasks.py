@@ -40,7 +40,41 @@ def serialize_task(task):
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
         "labels": [l for l in (getattr(task, "labels", "") or "").split(",") if l],
+        "photo_data_url": getattr(task, "photo_data_url", None),
     }
+
+
+# Max raw bytes for the base64 data URL we will accept.
+# Image binary is ~75% of the encoded string, so ~3 MB string ~= 2.25 MB image.
+MAX_PHOTO_DATA_URL_LEN = 3 * 1024 * 1024
+
+# Whitelist of image MIME types we accept inside a data URL.
+ALLOWED_IMAGE_MIME_PREFIXES = (
+    "data:image/png;",
+    "data:image/jpeg;",
+    "data:image/jpg;",
+    "data:image/gif;",
+    "data:image/webp;",
+)
+
+
+def validate_photo_data_url(value):
+    """Return (ok, normalized_value, error_message).
+    - None / empty string  → accept as null (user wants to remove the photo).
+    - Non-string           → reject.
+    - Too long             → reject.
+    - Wrong MIME prefix    → reject.
+    - Otherwise            → accept verbatim (frontend already encoded it).
+    """
+    if value is None or value == "":
+        return True, None, None
+    if not isinstance(value, str):
+        return False, None, "photo_data_url must be a string or null"
+    if len(value) > MAX_PHOTO_DATA_URL_LEN:
+        return False, None, "Image too large (max ~2 MB)"
+    if not any(value.startswith(p) for p in ALLOWED_IMAGE_MIME_PREFIXES):
+        return False, None, "Only PNG / JPEG / GIF / WebP images are allowed"
+    return True, value, None
 
 
 def normalize_labels(value):
@@ -159,12 +193,24 @@ def create_task():
         except (ValueError, TypeError):
             return jsonify({"error": "Invalid due_at format. Use ISO 8601 format"}), 400
 
+    # Photo data URL (optional)
+    photo_ok, photo_value, photo_err = validate_photo_data_url(body.get("photo_data_url"))
+    if not photo_ok:
+        return jsonify({
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": photo_err,
+                "details": {"field": "photo_data_url"},
+            }
+        }), 422
+
     task = Task(
         user_id=user_id,
         title=title.strip(),
         description=description if isinstance(description, str) else None,
         due_at=parsed_due_at,
         labels=normalize_labels(body.get("labels")),
+        photo_data_url=photo_value,
     )
 
     db.session.add(task)
@@ -235,6 +281,19 @@ def update_task(task_id):
     # Update labels if provided (accepts list or comma-separated string)
     if "labels" in body:
         task.labels = normalize_labels(body.get("labels"))
+
+    # Update photo_data_url if provided (null clears it)
+    if "photo_data_url" in body:
+        photo_ok, photo_value, photo_err = validate_photo_data_url(body.get("photo_data_url"))
+        if not photo_ok:
+            return jsonify({
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": photo_err,
+                    "details": {"field": "photo_data_url"},
+                }
+            }), 422
+        task.photo_data_url = photo_value
 
     task.updated_at = datetime.utcnow()
     db.session.commit()

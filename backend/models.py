@@ -82,6 +82,11 @@ class Task(db.Model):
     # Stored denormalized for simplicity; parsed to a list in to_dict.
     labels = db.Column(db.String(255), nullable=True)
 
+    # Inline image stored as a data URL (e.g. "data:image/png;base64,...").
+    # Trade-off: simple to demo, no filesystem / S3 dependency, but bloats the
+    # row. Acceptable for a checkpoint prototype. Capped client-side at ~2 MB.
+    photo_data_url = db.Column(db.Text, nullable=True)
+
     posts = db.relationship("Post", backref="task", lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -98,7 +103,8 @@ class Task(db.Model):
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "shared_post_id": self.shared_post_id,
             "google_event_id": self.google_event_id,
-            "labels": [l for l in (self.labels or "").split(",") if l]
+            "labels": [l for l in (self.labels or "").split(",") if l],
+            "photo_data_url": self.photo_data_url,
         }
 
 

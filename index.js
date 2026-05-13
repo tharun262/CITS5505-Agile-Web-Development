@@ -29,28 +29,104 @@ function setupSearch() {
 
 function setupCreateNote() {
   const createCard = document.querySelector(".note-create");
-  if (createCard) {
-    createCard.addEventListener("click", () => {
-      const title = prompt("Note title:");
-      if (title === null) return;
+  if (!createCard) return;
 
-      const description = prompt("Note description (optional):");
-      if (description === null) return;
+  // Whole card → text-first flow
+  createCard.addEventListener("click", async (e) => {
+    // If the click came from the image icon, let its own handler run instead.
+    if (e.target.closest(".create-image-icon")) return;
+    await runCreateFlow({ imageFirst: false });
+  });
 
-      const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
-      if (labelsInput === null) return;
-
-      const labels = labelsInput
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-
-      createTask(title.trim() || "Untitled", description?.trim() || "", labels);
+  // Image icon → image-first flow
+  const imageIcon = createCard.querySelector(".create-image-icon");
+  if (imageIcon) {
+    imageIcon.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await runCreateFlow({ imageFirst: true });
     });
   }
 }
 
-async function createTask(title, description, labels) {
+async function runCreateFlow({ imageFirst }) {
+  let photoDataUrl = null;
+
+  if (imageFirst) {
+    photoDataUrl = await pickImage();
+    if (photoDataUrl === null) return; // user cancelled file picker
+  }
+
+  const title = prompt("Note title:");
+  if (title === null) return;
+
+  const description = prompt("Note description (optional):");
+  if (description === null) return;
+
+  const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
+  if (labelsInput === null) return;
+
+  const labels = labelsInput
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (!imageFirst) {
+    const wantImage = confirm("Attach an image to this note?");
+    if (wantImage) {
+      photoDataUrl = await pickImage();
+      // If user cancelled the file picker, just continue without an image
+      // (no need to abort the whole create flow).
+    }
+  }
+
+  createTask(
+    title.trim() || "Untitled",
+    description?.trim() || "",
+    labels,
+    photoDataUrl
+  );
+}
+
+// Returns a base64 data URL string, or null if the user cancelled / file invalid.
+function pickImage() {
+  return new Promise((resolve) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/png,image/jpeg,image/gif,image/webp";
+
+    let settled = false;
+    const settle = (v) => {
+      if (!settled) {
+        settled = true;
+        resolve(v);
+      }
+    };
+
+    input.onchange = () => {
+      const file = input.files && input.files[0];
+      if (!file) return settle(null);
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image too large (max 2 MB). Continuing without image.");
+        return settle(null);
+      }
+      const reader = new FileReader();
+      reader.onload = () => settle(reader.result);
+      reader.onerror = () => {
+        alert("Failed to read image. Continuing without image.");
+        settle(null);
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Modern browsers (Chrome 113+, Firefox 91+) fire 'cancel' when the user
+    // dismisses the file dialog. We fall back gracefully if it never fires.
+    input.addEventListener("cancel", () => settle(null));
+
+    input.click();
+  });
+}
+
+async function createTask(title, description, labels, photoDataUrl) {
   if (!title) {
     alert("Title is required");
     return;
@@ -65,6 +141,7 @@ async function createTask(title, description, labels) {
         title,
         description: description || null,
         labels: labels || [],
+        photo_data_url: photoDataUrl || null,
       }),
     });
 
@@ -165,10 +242,16 @@ function renderTasks(tasks) {
       </div>
     `;
 
+    // Photo (data URL is already same-origin safe; src attribute is set verbatim)
+    const photoBlock = task.photo_data_url
+      ? `<img src="${task.photo_data_url}" alt="" class="img-fluid rounded mb-3" style="max-height: 180px; width: 100%; object-fit: cover;">`
+      : "";
+
     col.innerHTML = `
       <div class="card note-card h-100 bg-white">
         <div class="card-body">
           ${isCompleted}
+          ${photoBlock}
           <h2 class="h6 fw-bold mb-3">${title}</h2>
           <p class="text-secondary mb-3">${description}</p>
           ${labelBadges ? `<div class="mb-2">${labelBadges}</div>` : ""}
