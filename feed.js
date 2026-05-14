@@ -63,9 +63,11 @@ function renderPost(post) {
   wrapper.className = "card note-card bg-white mb-4";
   wrapper.id = `post-${post.id}`;
   wrapper.dataset.authorId = post.user_id ?? post.author?.id ?? "";
+  wrapper.dataset.authorUsername = post.author?.username ?? ""; // NEW
 
   const author = post.author || {};
   const authorName = escapeHtml(author.display_name || author.username || "anonymous");
+  const authorUsername = author.username; // NEW
   const title = escapeHtml(post.title_snapshot || "");
   const caption = post.caption ? escapeHtml(post.caption) : "";
   const createdAt = formatDate(post.created_at);
@@ -75,7 +77,11 @@ function renderPost(post) {
       <div class="d-flex align-items-center gap-2 mb-2">
         <i class="bi bi-person-circle fs-4 text-secondary"></i>
         <div>
-          <div class="fw-semibold">${authorName}</div>
+          <div class="fw-semibold">
+            <a href="user.html?username=${encodeURIComponent(authorUsername)}" class="text-decoration-none text-dark feed-author-link">
+              ${authorName}
+            </a>
+          </div>
           <div class="small text-muted">${createdAt}</div>
         </div>
       </div>
@@ -130,6 +136,7 @@ function renderComment(comment, postId, postAuthorId) {
 
   const author = comment.author || {};
   const authorName = escapeHtml(author.display_name || author.username || "anonymous");
+  const authorUsername = author.username; // NEW
   const body = escapeHtml(comment.body || "");
   const when = formatDate(comment.created_at);
 
@@ -144,9 +151,14 @@ function renderComment(comment, postId, postAuthorId) {
        </button>`
     : "";
 
+  // NEW: Make comment author clickable
   row.innerHTML = `
     <div class="flex-grow-1 me-2">
-      <span class="fw-semibold">${authorName}</span>
+      <span class="fw-semibold">
+        <a href="user.html?username=${encodeURIComponent(authorUsername)}" class="text-decoration-none text-dark">
+          ${authorName}
+        </a>
+      </span>
       <span class="text-muted small ms-2">${when}</span>
       <div>${body}</div>
     </div>

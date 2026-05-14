@@ -10,6 +10,7 @@ from routes.feed import feed_bp
 from routes.comments import comments_bp
 from routes.calendar import calendar_bp
 from routes.tasks import tasks_bp
+from routes.friends import friends_bp
 import os
 from dotenv import load_dotenv
 
@@ -25,6 +26,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 migrate.init_app(app, db)
 
+# Register all blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(profiles_bp)
 app.register_blueprint(archive_bp)
@@ -33,6 +35,7 @@ app.register_blueprint(feed_bp)
 app.register_blueprint(comments_bp)
 app.register_blueprint(calendar_bp)
 app.register_blueprint(tasks_bp)
+app.register_blueprint(friends_bp)
 
 @app.route("/")
 def home():

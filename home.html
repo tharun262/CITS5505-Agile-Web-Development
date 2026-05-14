@@ -3,84 +3,645 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TaskFlow | Home</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body class="landing-body">
-  <header class="landing-header">
-    <div class="landing-brand-wrap">
-      <div class="landing-brand-icon">T</div>
-      <div class="landing-brand-text">TaskFlow</div>
-    </div>
+  <title>KeepLite | Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg: #f8f4ea;
+      --surface: #fffdf8;
+      --surface-2: #fff8e8;
+      --border: #f0dfb7;
+      --border-strong: #e6c873;
+      --text: #2e2618;
+      --muted: #6e6658;
+      --accent: #f4c542;
+      --accent-deep: #d9a514;
+      --accent-soft: #fff1bf;
+      --shadow: 0 20px 50px rgba(56, 40, 8, 0.10);
+      --shadow-soft: 0 10px 24px rgba(56, 40, 8, 0.07);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-pill: 999px;
+    }
 
-    <nav class="landing-nav">
-      <a href="login.html" class="landing-link">Login</a>
-      <a href="register.html" class="landing-register-btn">Register</a>
-    </nav>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 223, 128, 0.40), transparent 30%),
+        radial-gradient(circle at top right, rgba(244, 197, 66, 0.22), transparent 24%),
+        linear-gradient(180deg, #fbf7ee 0%, #f8f4ea 50%, #f5efdf 100%);
+      color: var(--text);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    .landing-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(248, 244, 234, 0.78);
+      border-bottom: 1px solid rgba(230, 200, 115, 0.35);
+    }
+
+    .landing-header-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .landing-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .landing-brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ffe28c 0%, #f4c542 100%);
+      color: #6e4c00;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 10px 24px rgba(217, 165, 20, 0.18);
+    }
+
+    .landing-brand-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .landing-link,
+    .landing-register-btn,
+    .hero-primary,
+    .hero-secondary,
+    .cta-primary,
+    .cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      transition: 180ms ease;
+    }
+
+    .landing-link {
+      color: var(--text);
+      padding: 0.8rem 1rem;
+    }
+
+    .landing-link:hover {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .landing-register-btn,
+    .hero-primary,
+    .cta-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #ffd968 100%);
+      color: #533900;
+      padding: 0.92rem 1.3rem;
+      box-shadow: 0 12px 26px rgba(217, 165, 20, 0.20);
+    }
+
+    .landing-register-btn:hover,
+    .hero-primary:hover,
+    .cta-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(217, 165, 20, 0.24);
+    }
+
+    .hero-secondary,
+    .cta-secondary {
+      background: rgba(255,255,255,0.68);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.92rem 1.3rem;
+    }
+
+    .hero-secondary:hover,
+    .cta-secondary:hover {
+      background: #fff;
+    }
+
+    .landing-main {
+      padding: 2.2rem 0 4rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2rem;
+      align-items: center;
+      padding: 2rem 0 1.5rem;
+    }
+
+    .hero-copy {
+      max-width: 640px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 245, 210, 0.95);
+      border: 1px solid var(--border);
+      color: #7b5a00;
+      border-radius: var(--radius-pill);
+      padding: 0.55rem 0.85rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      max-width: 12ch;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.06rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 1.75rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.75rem;
+    }
+
+    .hero-meta-pill {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--radius-pill);
+      padding: 0.75rem 1rem;
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+
+    .hero-panel {
+      position: relative;
+      padding: 1.1rem;
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,248,232,0.96));
+      border: 1px solid rgba(240, 223, 183, 0.9);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      inset: auto -60px -70px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(244,197,66,0.22), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.2rem 0.5rem;
+    }
+
+    .hero-panel-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-panel-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-pill);
+      background: var(--accent-soft);
+      color: #775900;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #f1d784;
+    }
+
+    .hero-note-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .hero-note-card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(240, 223, 183, 0.95);
+      border-radius: 22px;
+      padding: 1rem 1rem 1.05rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .note-label {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-pill);
+      background: #fff4cb;
+      color: #7a5d08;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      border: 1px solid #f0d98e;
+    }
+
+    .hero-note-card h3 {
+      margin: 0 0 0.45rem;
+      font-size: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-note-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+
+    .landing-showcase {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.2rem;
+    }
+
+    .showcase-card,
+    .feature,
+    .landing-cta {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(240, 223, 183, 0.95);
+      border-radius: 26px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .showcase-card {
+      padding: 1.4rem;
+    }
+
+    .showcase-card.large {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 238, 0.98), rgba(255, 245, 214, 0.95));
+    }
+
+    .showcase-card small {
+      color: #816c42;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .showcase-card h3 {
+      margin: 0.9rem 0 0.75rem;
+      font-size: 1.5rem;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+    }
+
+    .showcase-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .showcase-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-top: 1.3rem;
+    }
+
+    .metric {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(240, 223, 183, 0.95);
+      padding: 0.9rem;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.35rem;
+      letter-spacing: -0.05em;
+      margin-bottom: 0.2rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .landing-features {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2rem;
+    }
+
+    .feature {
+      padding: 1.35rem;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #ffe79b, #f4c542);
+      color: #694a00;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+
+    .feature h2 {
+      margin: 0 0 0.55rem;
+      font-size: 1.12rem;
+      letter-spacing: -0.03em;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .landing-cta {
+      margin-top: 2rem;
+      padding: 2rem;
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(255, 249, 231, 0.97), rgba(255,255,255,0.88));
+    }
+
+    .landing-cta h2 {
+      margin: 0 0 0.65rem;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      letter-spacing: -0.05em;
+    }
+
+    .landing-cta p {
+      margin: 0 auto;
+      max-width: 56ch;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .landing-cta .hero-actions {
+      justify-content: center;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .landing-showcase,
+      .landing-features {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .landing-header-inner {
+        min-height: 72px;
+      }
+
+      .landing-nav {
+        gap: 0.45rem;
+      }
+
+      .landing-link,
+      .landing-register-btn {
+        padding: 0.75rem 0.95rem;
+      }
+
+      .hero {
+        padding-top: 1rem;
+      }
+
+      .hero-panel,
+      .showcase-card,
+      .feature,
+      .landing-cta,
+      .profile-card {
+        border-radius: 22px;
+      }
+
+      .showcase-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-primary,
+      .hero-secondary,
+      .cta-primary,
+      .cta-secondary {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="landing-header">
+    <div class="container landing-header-inner">
+      <div class="landing-brand-wrap">
+        <div class="landing-brand-icon">KL</div>
+        <div class="landing-brand-text">KeepLite</div>
+      </div>
+
+      <nav class="landing-nav">
+        <a href="login.html" class="landing-link">Login</a>
+        <a href="register.html" class="landing-register-btn">Register</a>
+      </nav>
+    </div>
   </header>
 
   <main class="landing-main">
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="hero-badge">Social productivity made simple</span>
-        <h1>Plan your work, track your progress, and share completed tasks with others.</h1>
+    <div class="container">
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="hero-badge">Social productivity made simple</span>
+          <h1>Organise your work and share real progress beautifully.</h1>
+          <p>
+            KeepLite helps you plan tasks, stay on top of what matters, archive completed work,
+            and share milestones through a clean social feed built around progress.
+          </p>
+
+          <div class="hero-actions">
+            <a href="register.html" class="hero-primary">Get Started</a>
+            <a href="login.html" class="hero-secondary">Login</a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-meta-pill">Create tasks with clarity</div>
+            <div class="hero-meta-pill">Track completed work</div>
+            <div class="hero-meta-pill">Share wins with others</div>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="hero-panel-top">
+            <div class="hero-panel-title">Your productivity snapshot</div>
+            <div class="hero-panel-chip">KeepLite Flow</div>
+          </div>
+
+          <div class="hero-note-grid">
+            <div class="hero-note-card">
+              <span class="note-label">Today</span>
+              <h3>Finish project checkpoint</h3>
+              <p>Complete backend routes, connect frontend pages, and prepare your weekly progress update.</p>
+            </div>
+
+            <div class="hero-note-card">
+              <span class="note-label">Completed</span>
+              <h3>Archive finished tasks</h3>
+              <p>Keep your workspace clean while preserving a tidy history of everything you have done.</p>
+            </div>
+
+            <div class="hero-note-card">
+              <span class="note-label">Shared</span>
+              <h3>Post your progress</h3>
+              <p>Turn completed work into public updates so friends and peers can see your momentum.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-showcase">
+        <article class="showcase-card large">
+          <div>
+            <small>Why it works</small>
+            <h3>A calmer workspace for tasks, milestones, and visible progress.</h3>
+            <p>
+              Instead of juggling scattered notes and forgotten checklists, KeepLite gives you one
+              place to capture tasks, complete them, archive them, and share what matters most.
+            </p>
+          </div>
+
+          <div class="showcase-metrics">
+            <div class="metric">
+              <strong>Tasks</strong>
+              <span>Plan your day with structure.</span>
+            </div>
+            <div class="metric">
+              <strong>Archive</strong>
+              <span>Keep your history organised.</span>
+            </div>
+            <div class="metric">
+              <strong>Feed</strong>
+              <span>Share completed achievements.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="showcase-card">
+          <small>Designed for momentum</small>
+          <h3>Simple enough to start fast, polished enough to keep using.</h3>
+          <p>
+            The experience is built to feel light, warm, and focused — with a clean yellow palette,
+            clear actions, and a layout that makes your progress easy to manage.
+          </p>
+        </article>
+      </section>
+
+      <section class="landing-features">
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <h2>Task dashboard</h2>
+          <p>Create, edit, complete, and organise tasks in one refined workspace designed for daily focus.</p>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">★</div>
+          <h2>Archive history</h2>
+          <p>Keep a visible record of completed work so your progress stays meaningful, not forgotten.</p>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">↗</div>
+          <h2>Public feed</h2>
+          <p>Share milestones with the community and explore how other users are moving forward.</p>
+        </div>
+      </section>
+
+      <section class="landing-cta">
+        <h2>Start building better momentum today.</h2>
         <p>
-          TaskFlow is a social productivity website where users can create tasks, complete them,
-          move them to an archive, and share finished achievements through a public feed.
+          Create your account, organise your work, and turn finished tasks into visible progress on KeepLite.
         </p>
-
         <div class="hero-actions">
-          <a href="register.html" class="hero-primary">Get Started</a>
-          <a href="login.html" class="hero-secondary">Login</a>
+          <a href="register.html" class="cta-primary">Create Account</a>
+          <a href="login.html" class="cta-secondary">Login</a>
         </div>
-      </div>
-
-      <div class="hero-panel">
-        <div class="hero-note-card">
-          <span class="note-label">Today</span>
-          <h3>Finish project checkpoint</h3>
-          <p>Complete backend routes, connect frontend pages, and prepare progress update.</p>
-        </div>
-
-        <div class="hero-note-card">
-          <span class="note-label">Completed</span>
-          <h3>Archive finished tasks</h3>
-          <p>Keep your dashboard tidy while still saving a history of what you have done.</p>
-        </div>
-
-        <div class="hero-note-card">
-          <span class="note-label">Shared</span>
-          <h3>Post your progress</h3>
-          <p>Turn completed work into public posts so other users can view and comment.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="landing-features">
-      <div class="feature">
-        <h2>Task dashboard</h2>
-        <p>Create, edit, complete, and organise tasks in one clean workspace.</p>
-      </div>
-
-      <div class="feature">
-        <h2>Archive history</h2>
-        <p>Store completed tasks so you can look back on your progress over time.</p>
-      </div>
-
-      <div class="feature">
-        <h2>Public feed</h2>
-        <p>Share achievements and explore posts from other users in the community.</p>
-      </div>
-    </section>
-
-    <section class="landing-cta">
-      <h2>Ready to get started?</h2>
-      <p>Create an account or log in to start managing tasks and sharing progress.</p>
-      <div class="hero-actions center">
-        <a href="register.html" class="hero-primary">Register</a>
-        <a href="login.html" class="hero-secondary">Login</a>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 </body>
 </html>
