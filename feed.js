@@ -72,6 +72,12 @@ function renderPost(post) {
   const caption = post.caption ? escapeHtml(post.caption) : "";
   const createdAt = formatDate(post.created_at);
 
+  // Handle image display
+  let imageHtml = "";
+  if (post.image_data) {
+    imageHtml = `<img src="data:image/png;base64,${post.image_data}" alt="Post image" class="img-fluid rounded mb-3" style="max-height: 300px; width: 100%; object-fit: cover;">`;
+  }
+
   wrapper.innerHTML = `
     <div class="card-body">
       <div class="d-flex align-items-center gap-2 mb-2">
@@ -86,6 +92,7 @@ function renderPost(post) {
         </div>
       </div>
       <h2 class="h6 fw-bold mb-2">${title}</h2>
+      ${imageHtml}
       ${caption ? `<p class="text-secondary mb-3">${caption}</p>` : ""}
       <hr class="my-3" />
       <div class="comment-section">

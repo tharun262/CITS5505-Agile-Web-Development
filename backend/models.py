@@ -200,10 +200,17 @@ class Task(db.Model):
     google_event_id = db.Column(db.String(255), nullable=True)
 
     labels = db.Column(db.String(255), nullable=True)
+    image_data = db.Column(db.LargeBinary, nullable=True)
 
     posts = db.relationship("Post", backref="task", lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
+        # Convert image_data to base64 string if it exists
+        image_data_b64 = None
+        if self.image_data:
+            import base64
+            image_data_b64 = base64.b64encode(self.image_data).decode('utf-8')
+        
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -217,7 +224,8 @@ class Task(db.Model):
             "completed_at": iso_utc(self.completed_at),
             "shared_post_id": self.shared_post_id,
             "google_event_id": self.google_event_id,
-            "labels": [l for l in (self.labels or "").split(",") if l]
+            "labels": [l for l in (self.labels or "").split(",") if l],
+            "image_data": image_data_b64,
         }
 
 

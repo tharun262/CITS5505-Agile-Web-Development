@@ -74,6 +74,12 @@ function renderArchive(tasks) {
       ? '<i class="bi bi-check-circle-fill text-success mb-2 d-block"></i>'
       : "";
 
+    // Handle image display
+    let imageHtml = "";
+    if (task.image_data) {
+      imageHtml = `<img src="data:image/png;base64,${task.image_data}" alt="Note image" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">`;
+    }
+
     col.innerHTML = `
       <div class="card note-card h-100 archived-card">
         <div class="card-body">
@@ -84,7 +90,8 @@ function renderArchive(tasks) {
               <i class="bi bi-arrow-up-circle text-muted"></i>
             </button>
           </div>
-          <p class="text-secondary mb-3 small">${description}</p>
+          ${imageHtml}
+          ${description ? `<p class="text-secondary mb-3 small">${description}</p>` : ""}
           <button class="btn btn-sm btn-outline-danger" onclick="deleteArchivedTask(${task.id})">
             <i class="bi bi-trash me-1"></i>Delete permanently
           </button>

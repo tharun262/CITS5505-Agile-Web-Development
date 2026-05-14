@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from models import Post, User, Comment
+import base64
 
 
 feed_bp = Blueprint("feed", __name__, url_prefix="/api/v1")
@@ -18,6 +19,11 @@ def serialize_author(user):
 
 def serialize_post(post):
     """Serialize post with full author info"""
+    # Get image_data from the associated task if it exists
+    image_data_b64 = None
+    if post.task and post.task.image_data:
+        image_data_b64 = base64.b64encode(post.task.image_data).decode('utf-8')
+    
     return {
         "id": post.id,
         "task_id": post.task_id,
@@ -27,7 +33,8 @@ def serialize_post(post):
         "caption": post.caption,
         "author": serialize_author(post.author) if post.author else None,
         "created_at": post.created_at.isoformat() if post.created_at else None,
-        "comment_count": len(post.comments) if hasattr(post, "comments") else 0
+        "comment_count": len(post.comments) if hasattr(post, "comments") else 0,
+        "image_data": image_data_b64,
     }
 
 
