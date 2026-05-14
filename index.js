@@ -28,9 +28,10 @@ function setupSearch() {
 }
 
 function setupCreateNote() {
-  const createCard = document.querySelector(".note-create");
-  if (createCard) {
-    createCard.addEventListener("click", () => {
+  // Text note button
+  const btnTextNote = document.getElementById("btn-text-note");
+  if (btnTextNote) {
+    btnTextNote.addEventListener("click", () => {
       const title = prompt("Note title:");
       if (title === null) return;
 
@@ -46,6 +47,46 @@ function setupCreateNote() {
         .filter(Boolean);
 
       createTask(title.trim() || "Untitled", description?.trim() || "", labels);
+    });
+  }
+
+  // Image note button
+  const btnImageNote = document.getElementById("btn-image-note");
+  if (btnImageNote) {
+    btnImageNote.addEventListener("click", () => {
+      // Create a hidden file input
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const imageData = event.target.result; // Base64 encoded image
+            
+            const title = prompt("Note title:");
+            if (title === null) return;
+
+            const description = prompt("Note description (optional):");
+            if (description === null) return;
+
+            const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
+            if (labelsInput === null) return;
+
+            const labels = labelsInput
+              .split(",")
+              .map(s => s.trim())
+              .filter(Boolean);
+
+            createTaskWithImage(title.trim() || "Untitled", description?.trim() || "", imageData, labels);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      fileInput.click();
     });
   }
 }
@@ -74,6 +115,37 @@ async function createTask(title, description, labels) {
     } else {
       const data = await res.json();
       alert(data.error || "Failed to create note");
+    }
+  } catch (err) {
+    alert("Network error: " + err.message);
+  }
+}
+
+async function createTaskWithImage(title, description, imageData, labels) {
+  if (!title) {
+    alert("Title is required");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/v1/tasks", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        description: description || null,
+        labels: labels || [],
+        image_data: imageData, // Include base64 image data
+      }),
+    });
+
+    if (res.status === 201) {
+      alert("Image note created!");
+      fetchTasks();
+    } else {
+      const data = await res.json();
+      alert(data.error || "Failed to create image note");
     }
   } catch (err) {
     alert("Network error: " + err.message);
@@ -137,6 +209,12 @@ function renderTasks(tasks) {
       ? '<i class="bi bi-check-circle-fill text-success mb-2 d-block"></i>'
       : "";
 
+    // Handle image display
+    let imageHtml = "";
+    if (task.image_data) {
+      imageHtml = `<img src="data:image/png;base64,${task.image_data}" alt="Note image" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">`;
+    }
+
     const labelBadges = (task.labels || [])
       .map(
         (l) =>
@@ -170,7 +248,8 @@ function renderTasks(tasks) {
         <div class="card-body">
           ${isCompleted}
           <h2 class="h6 fw-bold mb-3">${title}</h2>
-          <p class="text-secondary mb-3">${description}</p>
+          ${imageHtml}
+          ${description ? `<p class="text-secondary mb-3">${description}</p>` : ""}
           ${labelBadges ? `<div class="mb-2">${labelBadges}</div>` : ""}
           ${shareButton}
           ${actionButtons}

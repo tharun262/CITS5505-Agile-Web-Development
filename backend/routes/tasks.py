@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from models import Task
 from extensions import db
 from datetime import datetime
+import base64
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/api/v1")
 
@@ -29,6 +30,11 @@ def task_not_found_response():
 
 
 def serialize_task(task):
+    # Convert image_data to base64 string if it exists
+    image_data_b64 = None
+    if task.image_data:
+        image_data_b64 = base64.b64encode(task.image_data).decode('utf-8')
+    
     return {
         "id": task.id,
         "user_id": task.user_id,
@@ -40,6 +46,7 @@ def serialize_task(task):
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
         "labels": [l for l in (getattr(task, "labels", "") or "").split(",") if l],
+        "image_data": image_data_b64,
     }
 
 
@@ -166,6 +173,19 @@ def create_task():
         due_at=parsed_due_at,
         labels=normalize_labels(body.get("labels")),
     )
+
+    # Handle image_data if provided
+    image_data = body.get("image_data")
+    if image_data and isinstance(image_data, str):
+        # image_data should be a base64 string starting with "data:image/..."
+        # Extract the base64 part after the comma
+        if "," in image_data:
+            image_data = image_data.split(",", 1)[1]
+        try:
+            task.image_data = base64.b64decode(image_data)
+        except Exception:
+            # If decoding fails, just skip the image
+            pass
 
     db.session.add(task)
     db.session.commit()

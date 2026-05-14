@@ -146,13 +146,20 @@ function renderTasks() {
         )
         .join("");
 
+      // Handle image display
+      let imageHtml = "";
+      if (task.image_data) {
+        imageHtml = `<img src="data:image/png;base64,${task.image_data}" alt="Note image" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">`;
+      }
+
       return `
         <div class="col-12 col-md-6 col-xl-3">
           <div class="card note-card h-100 bg-white border border-primary-subtle">
             <div class="card-body">
               ${completedNote}${archivedNote}
               <h2 class="h6 fw-bold mb-2">${title}</h2>
-              <p class="text-secondary small mb-3">${description}</p>
+              ${imageHtml}
+              ${description ? `<p class="text-secondary small mb-3">${description}</p>` : ""}
               <span class="badge rounded-pill text-bg-primary me-1">${escapeHtml(selectedLabel)}</span>
               ${otherLabels}
             </div>
