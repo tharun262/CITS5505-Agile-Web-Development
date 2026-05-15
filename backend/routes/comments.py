@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from models import Post, Comment
+from models import Post, Comment, PostLike
 from extensions import db
 
 comments_bp = Blueprint("comments", __name__, url_prefix="/api/v1")
@@ -49,6 +49,16 @@ def serialize_comment(comment):
         "author": serialize_author(comment.author),
         "created_at": comment.created_at.isoformat() if comment.created_at else None,
     }
+
+
+def get_like_count(post_id):
+    return PostLike.query.filter_by(post_id=post_id).count()
+
+
+def user_liked_post(post_id, user_id):
+    if not user_id:
+        return False
+    return PostLike.query.filter_by(post_id=post_id, user_id=user_id).first() is not None
 
 
 @comments_bp.get("/posts/<int:post_id>/comments")
@@ -142,3 +152,41 @@ def delete_comment(post_id, comment_id):
     db.session.delete(comment)
     db.session.commit()
     return "", 204
+
+
+@comments_bp.route("/posts/<int:post_id>/like", methods=["POST", "DELETE", "OPTIONS"])
+def toggle_like(post_id):
+    if request.method == "OPTIONS":
+        return "", 204
+
+    user_id = get_logged_in_user_id()
+    if not user_id:
+        return unauthenticated_response()
+
+    post = Post.query.get(post_id)
+    if not post:
+        return post_not_found_response()
+
+    existing_like = PostLike.query.filter_by(post_id=post_id, user_id=user_id).first()
+
+    if request.method == "POST":
+        if not existing_like:
+            db.session.add(PostLike(post_id=post_id, user_id=user_id))
+            db.session.commit()
+
+        return jsonify({
+            "liked": True,
+            "like_count": get_like_count(post_id),
+            "liked_by_me": True,
+        }), 200
+
+    if request.method == "DELETE":
+        if existing_like:
+            db.session.delete(existing_like)
+            db.session.commit()
+
+        return jsonify({
+            "liked": False,
+            "like_count": get_like_count(post_id),
+            "liked_by_me": False,
+        }), 200

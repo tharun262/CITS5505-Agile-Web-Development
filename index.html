@@ -48,7 +48,7 @@
           </a>
         </div>
 
-        <form class="search-pill flex-grow-1 mx-lg-3">
+        <form class="search-pill flex-grow-1 mx-lg-3" onsubmit="return false;">
           <div class="input-group input-group-lg">
             <span class="input-group-text rounded-start-pill px-3"
               ><i class="bi bi-search text-muted"></i
@@ -163,69 +163,157 @@
           </div>
 
           <div class="row g-4" id="tasks-container">
-            <div class="col-12 col-md-6 col-xl-3">
-              <div class="card note-card h-100 bg-white">
-                <div class="card-body">
-                  <h2 class="h6 fw-bold mb-3">Java Checklist</h2>
-                  <ul class="list-unstyled small mb-3">
-                    <li class="mb-2">
-                      <i class="bi bi-square me-2 text-muted"></i>Finish
-                      collections revision
-                    </li>
-                    <li class="mb-2">
-                      <i class="bi bi-square me-2 text-muted"></i>Practice
-                      stream exercises
-                    </li>
-                    <li>
-                      <i class="bi bi-square me-2 text-muted"></i>Refactor lab
-                      submission
-                    </li>
-                  </ul>
-                  <span class="badge rounded-pill badge-soft">Java</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-xl-3">
-              <div class="card note-card h-100 bg-white">
-                <div class="card-body">
-                  <h2 class="h6 fw-bold mb-3">Quick Note</h2>
-                  <p class="text-secondary mb-3">
-                    KeepLite stays intentionally simple: clean layout, soft
-                    shadows, and easy-to-maintain Bootstrap structure.
-                  </p>
-                  <span class="badge rounded-pill text-bg-light">Design</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-xl-3">
-              <div class="card note-card h-100" style="background: #fce8b2">
-                <div class="card-body">
-                  <h2 class="h6 fw-bold mb-3">Project Idea</h2>
-                  <p class="mb-3 text-dark">
-                    CITS5505 Agile development sprint 1: focus on UI consistency
-                    and initial Flask routing.
-                  </p>
-                  <span class="badge rounded-pill badge-soft">Pinned</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-xl-3">
-              <div class="card note-card h-100 bg-white">
-                <div class="card-body">
-                  <h2 class="h6 fw-bold mb-3">Work Reminder</h2>
-                  <p class="text-secondary mb-3">
-                    Review archived notes before the next sprint planning
-                    session.
-                  </p>
-                  <span class="badge rounded-pill text-bg-light">Work</span>
-                </div>
-              </div>
-            </div>
+            <div class="col-12"><p class="text-muted text-center pt-5">Loading notes...</p></div>
           </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Create / Edit Note Modal -->
+    <div class="modal fade" id="noteModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <div>
+              <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="noteModalTitle">
+                <i class="bi bi-stickies"></i>
+                <span>Create Note</span>
+              </h5>
+              <p class="text-secondary small mb-0 mt-1">Capture thoughts, reminders, labels, and images in one place.</p>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <form id="noteForm">
+            <div class="modal-body pt-3">
+              <input type="hidden" id="noteTaskId" />
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="noteType" class="form-label fw-semibold">Note Type</label>
+                  <select class="form-select rounded-4" id="noteType">
+                    <option value="text">Text Note</option>
+                    <option value="image">Image Note</option>
+                  </select>
+                </div>
+
+                <div class="col-md-8">
+                  <label for="noteTitle" class="form-label fw-semibold">Title</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-4"
+                    id="noteTitle"
+                    placeholder="Enter note title"
+                    required
+                  />
+                </div>
+
+                <div class="col-12">
+                  <label for="noteDescription" class="form-label fw-semibold">Description</label>
+                  <textarea
+                    class="form-control rounded-4"
+                    id="noteDescription"
+                    rows="5"
+                    placeholder="Write your note..."
+                  ></textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="noteLabels" class="form-label fw-semibold">Labels</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-4"
+                    id="noteLabels"
+                    placeholder="study, java, work"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="noteReminder" class="form-label fw-semibold">Reminder</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control rounded-4"
+                    id="noteReminder"
+                  />
+                </div>
+
+                <div class="col-12 d-none" id="imageUploadGroup">
+                  <label for="noteImage" class="form-label fw-semibold">Upload Image</label>
+                  <input
+                    type="file"
+                    class="form-control rounded-4"
+                    id="noteImage"
+                    accept="image/*"
+                  />
+                  <div id="noteImagePreviewWrap" class="mt-3 d-none">
+                    <div class="p-2 bg-light rounded-4">
+                      <img
+                        id="noteImagePreview"
+                        alt="Preview"
+                        class="img-fluid rounded-4"
+                        style="max-height: 240px; width: 100%; object-fit: cover;"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4" id="noteSubmitBtn">
+                <i class="bi bi-plus-circle me-2"></i>Save Note
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal fade" id="shareTaskModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <div>
+              <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                <i class="bi bi-share"></i>
+                <span>Share to Feed</span>
+              </h5>
+              <p class="text-secondary small mb-0 mt-1">Add a polished caption before posting your completed note.</p>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <form id="shareTaskForm">
+            <div class="modal-body pt-3">
+              <input type="hidden" id="shareTaskId" />
+
+              <div class="rounded-4 border bg-light p-3 mb-3">
+                <div class="small text-muted mb-1">Selected note</div>
+                <div id="shareTaskPreviewTitle" class="fw-bold text-dark"></div>
+                <div id="shareTaskPreviewDescription" class="small text-secondary mt-1"></div>
+              </div>
+
+              <div class="mb-0">
+                <label for="shareCaption" class="form-label fw-semibold">Caption</label>
+                <textarea
+                  class="form-control rounded-4"
+                  id="shareCaption"
+                  rows="4"
+                  placeholder="What would you like to say about this note?"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-warning rounded-pill px-4">
+                <i class="bi bi-send me-2"></i>Post to Feed
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
