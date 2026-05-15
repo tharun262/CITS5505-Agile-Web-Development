@@ -167,6 +167,33 @@ class Comment(db.Model):
         }
 
 
+class PostLike(db.Model):
+    __tablename__ = "post_like"
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=utc_now, nullable=False)
+
+    user = db.relationship("User")
+    post = db.relationship(
+        "Post",
+        backref=db.backref("likes", lazy=True, cascade="all, delete-orphan"),
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint("post_id", "user_id", name="unique_post_like"),
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "post_id": self.post_id,
+            "user_id": self.user_id,
+            "created_at": iso_utc(self.created_at),
+        }
+
+
 class CalendarCredential(db.Model):
     __tablename__ = "calendar_credential"
 
@@ -205,12 +232,11 @@ class Task(db.Model):
     posts = db.relationship("Post", backref="task", lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
-        # Convert image_data to base64 string if it exists
         image_data_b64 = None
         if self.image_data:
             import base64
-            image_data_b64 = base64.b64encode(self.image_data).decode('utf-8')
-        
+            image_data_b64 = base64.b64encode(self.image_data).decode("utf-8")
+
         return {
             "id": self.id,
             "user_id": self.user_id,
