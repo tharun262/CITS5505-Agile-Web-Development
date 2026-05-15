@@ -1,7 +1,6 @@
 let reminders = [];
 let filteredReminders = [];
 let countdownInterval = null;
-const notifiedTaskIds = new Set();
 
 document.addEventListener("DOMContentLoaded", () => {
   fetchReminders();
@@ -105,6 +104,7 @@ function setupNotificationButton() {
       new Notification("KeepLite notifications enabled", {
         body: "You will now get reminder alerts."
       });
+      window.KeepLiteReminderNotifications?.start();
     }
   });
 }
@@ -329,9 +329,6 @@ function updateCountdowns() {
 
   elements.forEach((el) => {
     const dueAt = el.getAttribute("data-due-at");
-    const taskId = el.getAttribute("data-task-id");
-    const title = el.getAttribute("data-title") || "A reminder";
-
     if (!dueAt) return;
 
     const dueDate = new Date(dueAt);
@@ -341,33 +338,9 @@ function updateCountdowns() {
     el.classList.toggle("text-danger", overdue);
     el.classList.toggle("text-primary", !overdue);
 
-    maybeSendNotification(taskId, title, dueDate);
   });
 
   updateStats(filteredReminders);
-}
-
-function maybeSendNotification(taskId, title, dueDate) {
-  if (!("Notification" in window)) return;
-  if (Notification.permission !== "granted") return;
-
-  const diff = dueDate.getTime() - Date.now();
-  const soonKey = `${taskId}-soon`;
-  const dueKey = `${taskId}-due`;
-
-  if (diff > 0 && diff <= 5 * 60 * 1000 && !notifiedTaskIds.has(soonKey)) {
-    new Notification("Reminder coming up", {
-      body: `${title} is due in less than 5 minutes.`
-    });
-    notifiedTaskIds.add(soonKey);
-  }
-
-  if (diff <= 0 && !notifiedTaskIds.has(dueKey)) {
-    new Notification("Reminder due now", {
-      body: `${title} is due now.`
-    });
-    notifiedTaskIds.add(dueKey);
-  }
 }
 
 function updateStats(reminderList) {
