@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMessageModals();
   loadCurrentUser();
   loadMessages();
+  setInterval(loadMessages, 30000);
   setupFilterListeners();
 });
 

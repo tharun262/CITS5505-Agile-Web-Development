@@ -195,6 +195,7 @@ class Task(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at = db.Column(db.DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
     completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    reminder_sent_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     shared_post_id = db.Column(db.Integer, nullable=True)
     google_event_id = db.Column(db.String(255), nullable=True)
@@ -222,6 +223,7 @@ class Task(db.Model):
             "created_at": iso_utc(self.created_at),
             "updated_at": iso_utc(self.updated_at),
             "completed_at": iso_utc(self.completed_at),
+            "reminder_sent_at": iso_utc(self.reminder_sent_at),
             "shared_post_id": self.shared_post_id,
             "google_event_id": self.google_event_id,
             "labels": [l for l in (self.labels or "").split(",") if l],

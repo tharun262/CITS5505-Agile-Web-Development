@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, session
 from models import Task
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
+from reminder_notifications import dispatch_due_reminders
 import base64
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/api/v1")
@@ -35,19 +36,36 @@ def serialize_task(task):
     if task.image_data:
         image_data_b64 = base64.b64encode(task.image_data).decode('utf-8')
     
+    # Ensure due_at has timezone info before serializing
+    due_at_value = None
+    if task.due_at:
+        dt = task.due_at
+        # If the datetime is naive (no timezone), assume it's UTC
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        # Convert to UTC and format as ISO string with Z suffix
+        due_at_value = dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    
     return {
         "id": task.id,
         "user_id": task.user_id,
         "title": task.title,
         "description": task.description,
-        "due_at": task.due_at.isoformat() if task.due_at else None,
+        "due_at": due_at_value,
         "is_completed": task.is_completed,
         "is_archived": task.is_archived,
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
+        "reminder_sent_at": task.reminder_sent_at.isoformat() if task.reminder_sent_at else None,
         "labels": [l for l in (getattr(task, "labels", "") or "").split(",") if l],
         "image_data": image_data_b64,
     }
+
+
+def parse_iso_datetime(value):
+    if not isinstance(value, str):
+        raise TypeError("Expected ISO 8601 datetime string")
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def normalize_labels(value):
@@ -89,6 +107,8 @@ def list_tasks():
     user_id = get_logged_in_user_id()
     if not user_id:
         return unauthenticated_response()
+
+    dispatch_due_reminders(user_id)
 
     page = request.args.get("page", 1, type=int)
     page_size = request.args.get("page_size", 50, type=int)
@@ -160,7 +180,7 @@ def create_task():
     if due_at:
         try:
             if isinstance(due_at, str):
-                parsed_due_at = datetime.fromisoformat(due_at)
+                parsed_due_at = parse_iso_datetime(due_at)
             else:
                 return jsonify({"error": "due_at must be an ISO 8601 datetime string"}), 400
         except (ValueError, TypeError):
@@ -243,10 +263,12 @@ def update_task(task_id):
         due_at = body.get("due_at")
         if due_at is None:
             task.due_at = None
+            task.reminder_sent_at = None
         else:
             try:
                 if isinstance(due_at, str):
-                    task.due_at = datetime.fromisoformat(due_at)
+                    task.due_at = parse_iso_datetime(due_at)
+                    task.reminder_sent_at = None
                 else:
                     return jsonify({"error": "due_at must be an ISO 8601 datetime string"}), 400
             except (ValueError, TypeError):

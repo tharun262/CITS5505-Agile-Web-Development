@@ -62,8 +62,9 @@
         </form>
 
         <div class="d-flex gap-3 align-items-center ms-auto">
-          <button class="btn btn-light rounded-circle shadow-sm" type="button" aria-label="Messages" onclick="window.location.href='messages.html'">
+          <button class="btn btn-light rounded-circle shadow-sm position-relative" type="button" aria-label="Messages" onclick="window.location.href='messages.html'">
             <i class="bi bi-envelope fs-5"></i>
+            <span id="messageUnreadBadge" class="message-unread-badge" aria-label="Unread messages"></span>
           </button>
           <button class="btn btn-light rounded-circle shadow-sm" type="button" aria-label="Profile" onclick="window.location.href='profile.html'">
             <i class="bi bi-person-circle fs-5"></i>
@@ -226,6 +227,60 @@
             </div>
           </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Task Creation Modal with Date/Time Picker -->
+    <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h1 class="modal-title fs-5 fw-bold" id="createTaskModalLabel">Create a Note</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="taskForm">
+              <div class="mb-3">
+                <label for="taskTitle" class="form-label">Title</label>
+                <input type="text" class="form-control" id="taskTitle" placeholder="Enter note title" required>
+              </div>
+              <div class="mb-3">
+                <label for="taskDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="taskDescription" rows="3" placeholder="Enter note description (optional)"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="taskLabels" class="form-label">Labels</label>
+                <input type="text" class="form-control" id="taskLabels" placeholder="Enter labels (comma-separated, e.g. 'study, java')">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="taskDate">Due Date & Time (Optional)</label>
+                <div class="task-datetime-picker">
+                  <div class="task-date-field">
+                    <span class="task-field-icon"><i class="bi bi-calendar-event"></i></span>
+                    <input type="date" class="form-control" id="taskDate">
+                  </div>
+                  <div class="task-time-fields" aria-label="Task time">
+                    <label class="visually-hidden" for="taskHour">Hour</label>
+                    <select class="form-select" id="taskHour"></select>
+                    <span class="time-separator">:</span>
+                    <label class="visually-hidden" for="taskMinute">Minute</label>
+                    <select class="form-select" id="taskMinute"></select>
+                    <span class="time-separator">:</span>
+                    <label class="visually-hidden" for="taskSecond">Second</label>
+                    <select class="form-select" id="taskSecond"></select>
+                  </div>
+                </div>
+                <div class="form-text">Select a date, then choose an exact hour, minute, and second.</div>
+              </div>
+              <input type="hidden" id="taskType" value="text">
+              <input type="hidden" id="taskImageData" value="">
+            </form>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="createTaskBtn">Create</button>
+          </div>
+        </div>
       </div>
     </div>
 

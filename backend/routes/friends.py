@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from models import User, Friendship, FriendRequest, Message, iso_utc
 from extensions import db
+from reminder_notifications import dispatch_due_reminders
 
 friends_bp = Blueprint("friends", __name__)
 
@@ -330,6 +331,8 @@ def get_messages():
 
     if not user_id:
         return jsonify({"error": "Not logged in"}), 401
+
+    dispatch_due_reminders(user_id)
 
     filter_by = request.args.get("filter", "all")
 

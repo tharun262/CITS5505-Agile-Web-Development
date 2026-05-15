@@ -1,11 +1,91 @@
 // index.js
 let allTasks = [];
 
+function convertTaskDateTimeToISO(dateValue, hourValue, minuteValue, secondValue) {
+  if (!dateValue) return null;
+
+  const [yearStr, monthStr, dayStr] = dateValue.split("-");
+  const year = Number.parseInt(yearStr, 10);
+  const month = Number.parseInt(monthStr, 10) - 1;
+  const day = Number.parseInt(dayStr, 10);
+  const hours = Number.parseInt(hourValue, 10);
+  const minutes = Number.parseInt(minuteValue, 10);
+  const seconds = Number.parseInt(secondValue, 10);
+
+  if ([year, month, day, hours, minutes, seconds].some(Number.isNaN)) return null;
+
+  const localDate = new Date(year, month, day, hours, minutes, seconds, 0);
+  if (Number.isNaN(localDate.getTime())) return null;
+
+  return localDate.toISOString();
+}
+
+function formatTwoDigits(value) {
+  return String(value).padStart(2, "0");
+}
+
+function populateTimeSelect(selectId, maxValue) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  select.innerHTML = "";
+  for (let value = 0; value <= maxValue; value += 1) {
+    const option = document.createElement("option");
+    option.value = formatTwoDigits(value);
+    option.textContent = formatTwoDigits(value);
+    select.appendChild(option);
+  }
+}
+
+function setupTaskDateTimePicker() {
+  populateTimeSelect("taskHour", 23);
+  populateTimeSelect("taskMinute", 59);
+  populateTimeSelect("taskSecond", 59);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  setupTaskDateTimePicker();
   fetchTasks();
+  setInterval(fetchTasks, 30000);
+  updateMessageUnreadBadge();
+  setInterval(updateMessageUnreadBadge, 30000);
   setupSearch();
   setupCreateNote();
 });
+
+async function updateMessageUnreadBadge() {
+  const badge = document.getElementById("messageUnreadBadge");
+  if (!badge) return;
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/api/v1/messages?filter=unread", {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      badge.style.display = "none";
+      return;
+    }
+
+    const data = await response.json();
+    const unreadCount = Number(data.count || data.messages?.length || 0);
+
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+      badge.style.display = "inline-block";
+      badge.setAttribute("aria-label", `${unreadCount} unread messages`);
+    } else {
+      badge.textContent = "";
+      badge.style.display = "none";
+      badge.setAttribute("aria-label", "No unread messages");
+    }
+  } catch (err) {
+    console.error("Error loading unread messages:", err);
+    badge.style.display = "none";
+  }
+}
 
 function setupSearch() {
   const searchForm = document.querySelector(".search-pill");
@@ -32,21 +112,11 @@ function setupCreateNote() {
   const btnTextNote = document.getElementById("btn-text-note");
   if (btnTextNote) {
     btnTextNote.addEventListener("click", () => {
-      const title = prompt("Note title:");
-      if (title === null) return;
-
-      const description = prompt("Note description (optional):");
-      if (description === null) return;
-
-      const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
-      if (labelsInput === null) return;
-
-      const labels = labelsInput
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-
-      createTask(title.trim() || "Untitled", description?.trim() || "", labels);
+      resetTaskModal();
+      document.getElementById("taskType").value = "text";
+      document.getElementById("taskImageData").value = "";
+      const modal = new bootstrap.Modal(document.getElementById("createTaskModal"));
+      modal.show();
     });
   }
 
@@ -64,23 +134,12 @@ function setupCreateNote() {
         if (file) {
           const reader = new FileReader();
           reader.onload = (event) => {
-            const imageData = event.target.result; // Base64 encoded image
-            
-            const title = prompt("Note title:");
-            if (title === null) return;
-
-            const description = prompt("Note description (optional):");
-            if (description === null) return;
-
-            const labelsInput = prompt("Labels (comma-separated, optional, e.g. 'study, java'):");
-            if (labelsInput === null) return;
-
-            const labels = labelsInput
-              .split(",")
-              .map(s => s.trim())
-              .filter(Boolean);
-
-            createTaskWithImage(title.trim() || "Untitled", description?.trim() || "", imageData, labels);
+            const imageData = event.target.result;
+            resetTaskModal();
+            document.getElementById("taskType").value = "image";
+            document.getElementById("taskImageData").value = imageData;
+            const modal = new bootstrap.Modal(document.getElementById("createTaskModal"));
+            modal.show();
           };
           reader.readAsDataURL(file);
         }
@@ -89,24 +148,88 @@ function setupCreateNote() {
       fileInput.click();
     });
   }
+
+  // Handle modal form submission
+  const createTaskBtn = document.getElementById("createTaskBtn");
+  if (createTaskBtn) {
+    createTaskBtn.addEventListener("click", () => {
+      const title = document.getElementById("taskTitle").value.trim();
+      const description = document.getElementById("taskDescription").value.trim();
+      const labelsInput = document.getElementById("taskLabels").value.trim();
+      const dueAtInput = getTaskDueAtISO();
+      const taskType = document.getElementById("taskType").value;
+      const imageData = document.getElementById("taskImageData").value;
+
+      if (!title) {
+        alert("Title is required");
+        return;
+      }
+
+      const labels = labelsInput
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (taskType === "image" && imageData) {
+        createTaskWithImage(title, description, imageData, labels, dueAtInput || null);
+      } else {
+        createTask(title, description, labels, dueAtInput || null);
+      }
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById("createTaskModal"));
+      if (modal) modal.hide();
+    });
+  }
 }
 
-async function createTask(title, description, labels) {
+function resetTaskModal() {
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDescription").value = "";
+  document.getElementById("taskLabels").value = "";
+  resetTaskDateTime();
+  document.getElementById("taskType").value = "text";
+  document.getElementById("taskImageData").value = "";
+}
+
+function getTaskDueAtISO() {
+  const dateValue = document.getElementById("taskDate").value;
+  const hourValue = document.getElementById("taskHour").value;
+  const minuteValue = document.getElementById("taskMinute").value;
+  const secondValue = document.getElementById("taskSecond").value;
+
+  return convertTaskDateTimeToISO(dateValue, hourValue, minuteValue, secondValue);
+}
+
+function resetTaskDateTime() {
+  document.getElementById("taskDate").value = "";
+  document.getElementById("taskHour").value = "00";
+  document.getElementById("taskMinute").value = "00";
+  document.getElementById("taskSecond").value = "00";
+}
+
+async function createTask(title, description, labels, dueAt) {
   if (!title) {
     alert("Title is required");
     return;
   }
 
   try {
+    const payload = {
+      title,
+      description: description || null,
+      labels: labels || [],
+    };
+
+    if (dueAt) {
+      payload.due_at = dueAt;
+    }
+
     const res = await fetch("http://127.0.0.1:5000/api/v1/tasks", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        description: description || null,
-        labels: labels || [],
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (res.status === 201) {
@@ -121,23 +244,29 @@ async function createTask(title, description, labels) {
   }
 }
 
-async function createTaskWithImage(title, description, imageData, labels) {
+async function createTaskWithImage(title, description, imageData, labels, dueAt) {
   if (!title) {
     alert("Title is required");
     return;
   }
 
   try {
+    const payload = {
+      title,
+      description: description || null,
+      labels: labels || [],
+      image_data: imageData, // Include base64 image data
+    };
+
+    if (dueAt) {
+      payload.due_at = dueAt;
+    }
+
     const res = await fetch("http://127.0.0.1:5000/api/v1/tasks", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        description: description || null,
-        labels: labels || [],
-        image_data: imageData, // Include base64 image data
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (res.status === 201) {

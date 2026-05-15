@@ -152,6 +152,89 @@ textarea {
   color: #6b4f00;
 }
 
+.message-unread-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  display: none;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.05rem;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.35);
+}
+
+.reminder-datetime-picker,
+.task-datetime-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.reminder-date-field,
+.task-date-field {
+  position: relative;
+}
+
+.reminder-date-field .form-control,
+.task-date-field .form-control {
+  min-height: 46px;
+  padding-left: 2.6rem;
+}
+
+.reminder-field-icon,
+.task-field-icon {
+  position: absolute;
+  left: 0.95rem;
+  top: 50%;
+  z-index: 2;
+  color: #6b4f00;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.reminder-time-fields,
+.task-time-fields {
+  display: grid;
+  grid-template-columns: 4.8rem auto 4.8rem auto 4.8rem;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.reminder-time-fields .form-select,
+.task-time-fields .form-select {
+  min-height: 46px;
+  font-weight: 700;
+  text-align: center;
+  text-align-last: center;
+}
+
+.time-separator {
+  color: #5f6368;
+  font-weight: 800;
+}
+
+@media (max-width: 575.98px) {
+  .reminder-datetime-picker,
+  .task-datetime-picker {
+    grid-template-columns: 1fr;
+  }
+
+  .reminder-time-fields,
+  .task-time-fields {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    width: 100%;
+  }
+}
+
 .badge-pill {
   display: inline-block;
   padding: 0.45rem 0.9rem;
