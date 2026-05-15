@@ -95,6 +95,7 @@ def list_tasks():
     sort = request.args.get("sort", "-created_at")
     search = request.args.get("search", "")
     include_archived = request.args.get("include_archived", "false").lower() == "true"
+    status = request.args.get("status", "").strip().lower()
 
     if page < 1:
         page = 1
@@ -106,9 +107,15 @@ def list_tasks():
     # Build query for user's tasks
     query = Task.query.filter_by(user_id=user_id)
 
-    # Exclude archived tasks by default
-    if not include_archived:
-        query = query.filter_by(is_archived=False)
+    # Handle status parameter
+    if status == "completed":
+        query = query.filter_by(is_completed=True, is_archived=False)
+    elif status == "archived":
+        query = query.filter_by(is_archived=True)
+    else:
+        # Default: exclude archived tasks by default
+        if not include_archived:
+            query = query.filter_by(is_archived=False)
 
     # Search filter
     if search.strip():
@@ -132,6 +139,7 @@ def list_tasks():
     pagination = query.paginate(page=page, per_page=page_size, error_out=False)
 
     return jsonify({
+        "tasks": [serialize_task(t) for t in pagination.items],
         "items": [serialize_task(t) for t in pagination.items],
         "page": page,
         "page_size": page_size,
